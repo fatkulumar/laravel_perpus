@@ -64,6 +64,15 @@
                             <td>
                             <a onclick="return confirm('Yakin Menghapus {{ $lokasi_buku->lokasi_buku }}?')" class="btn btn-danger btn-sm" href="/admin/lokasi_buku/delete/{{ $lokasi_buku->id_lokasi_buku }}">Hapus</a> <a class="btn btn-primary btn-sm" href="/admin/lokasi_buku/edit/{{ $lokasi_buku->id_lokasi_buku }}">Edit</a>
                             </td>
+                            <td>
+
+                                <form action="/admin/lokasi_buku/delete/{{$lokasi_buku->lokasi_buku}}" method="post">
+                                @method('DELETE')
+                                @csrf
+                                <button type="submit">Hapus</button>
+
+                                </form>
+                            </td>
                         </tr>
 
                     @endforeach

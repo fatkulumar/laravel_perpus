@@ -26,6 +26,7 @@ class CreateAdminTable extends Migration
             $table->id('id_admin');
             $table->text('nama_logo');
             $table->text('nama_instansi');
+            $table->integer('batas_pinjam_buku');
             $table->timestamps();
         });
     }

@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Admin;
 use App\Models\Buku;
 use App\Models\Kembali;
 use App\Models\LokasiBuku;
 use App\Models\Pinjam;
+use App\Models\User;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
@@ -22,9 +24,11 @@ class BukuController extends Controller
      */
     public function index()
     {
+        $profils = User::all()->first();
+        $foto_instansi = Admin::all()->first();
         $buku = Buku::all();
         $name = Auth::User()->name;
-        return view('admin.buku.index',['bukus' => $buku, 'name' => $name]);
+        return view('admin.buku.index',['bukus' => $buku, 'name' => $name, 'profils' => $profils, 'foto_instansi' =>$foto_instansi]);
     }
 
     //index anggota
@@ -99,9 +103,11 @@ class BukuController extends Controller
      */
     public function create()
     {
+        $profils = User::all()->first();
+        $foto_instansi = Admin::all()->first();
         $lokasi_bukus = LokasiBuku::all();
         $name = Auth::User()->name;
-        return view('admin.buku.tambah_buku',['lokasi_bukus' => $lokasi_bukus,'name' => $name]);
+        return view('admin.buku.tambah_buku',['lokasi_bukus' => $lokasi_bukus,'name' => $name, 'profils' => $profils, 'foto_instansi' =>$foto_instansi]);
     }
 
     /**
@@ -165,10 +171,12 @@ class BukuController extends Controller
      */
     public function edit(Buku $buku, $id)
     {
+        $profils = User::all()->first();
+        $foto_instansi = Admin::all()->first();
         $bukus = Buku::find($id);
         $buku_all = Buku::all();
         $name = Auth::User()->name;
-        return view('admin.buku.edit_buku', ['bukus' => $bukus, 'buku_all' => $buku_all, 'name' => $name]);
+        return view('admin.buku.edit_buku', ['bukus' => $bukus, 'buku_all' => $buku_all, 'name' => $name, 'profils' => $profils, 'foto_instansi' =>$foto_instansi]);
     }
 
     /**

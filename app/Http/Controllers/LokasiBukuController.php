@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Admin;
 use App\Models\LokasiBuku;
+use App\Models\User;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -17,9 +19,11 @@ class LokasiBukuController extends Controller
      */
     public function index()
     {
+        $profils = User::all()->first();
+        $foto_instansi = Admin::all()->first();
         $lokasi_bukus = LokasiBuku::all();
         $name = Auth::User()->name;
-        return view('admin.lokasi_buku.index', ['lokasi_bukus' => $lokasi_bukus, 'name' => $name]);
+        return view('admin.lokasi_buku.index', ['lokasi_bukus' => $lokasi_bukus, 'name' => $name, 'profils' => $profils, 'foto_instansi' =>$foto_instansi]);
     }
 
     /**
@@ -29,8 +33,10 @@ class LokasiBukuController extends Controller
      */
     public function create()
     {
+        $profils = User::all()->first();
+        $foto_instansi = Admin::all()->first();
         $name = Auth::User()->name;
-        return view('admin.lokasi_buku.tambah_lokasi_buku', ['name' => $name]);
+        return view('admin.lokasi_buku.tambah_lokasi_buku', ['name' => $name, 'profils' => $profils, 'foto_instansi' =>$foto_instansi]);
     }
 
     /**
@@ -82,9 +88,11 @@ class LokasiBukuController extends Controller
      */
     public function edit(LokasiBuku $lokasiBuku, $id)
     {
+        $profils = User::all()->first();
+        $foto_instansi = Admin::all()->first();
         $lokasi_bukus = LokasiBuku::find($id);
         $name = Auth::User()->name;
-        return view('admin.lokasi_buku.edit_lokasi_buku', ['lokasi_bukus' =>$lokasi_bukus,'name' => $name]);
+        return view('admin.lokasi_buku.edit_lokasi_buku', ['lokasi_bukus' =>$lokasi_bukus,'name' => $name, 'profils' => $profils, 'foto_instansi' =>$foto_instansi]);
     }
 
     /**

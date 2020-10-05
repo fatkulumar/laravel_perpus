@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Admin;
 use App\Models\Kelas;
+use App\Models\User;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -17,9 +19,11 @@ class KelasController extends Controller
      */
     public function index()
     {
+        $profils = User::all()->first();
+        $foto_instansi = Admin::all()->first();
         $kelass = Kelas::all();
         $name = Auth::User()->name;
-        return view('admin.kelas.index', ['kelass' => $kelass, 'name' => $name]);
+        return view('admin.kelas.index', ['kelass' => $kelass, 'name' => $name, 'profils' => $profils, 'foto_instansi' => $foto_instansi]);
     }
 
     /**
@@ -29,8 +33,10 @@ class KelasController extends Controller
      */
     public function create()
     {
+        $profils = User::all()->first();
+        $foto_instansi = Admin::all()->first();
         $name = Auth::User()->name;
-        return view('admin.kelas.tambah_kelas', ['name' => $name]);
+        return view('admin.kelas.tambah_kelas', ['name' => $name, 'profils' => $profils, 'foto_instansi' =>$foto_instansi]);
     }
 
     /**
@@ -81,9 +87,11 @@ class KelasController extends Controller
      */
     public function edit(Kelas $kelas, $id)
     {
+        $profils = User::all()->first();
+        $foto_instansi = Admin::all()->first();
         $name = Auth::User()->name;
         $kelass = Kelas::find($id);
-        return view('admin.kelas.edit_kelas', ['kelass' => $kelass, 'name' => $name]);
+        return view('admin.kelas.edit_kelas', ['kelass' => $kelass, 'name' => $name, 'profils' => $profils, 'foto_instansi' =>$foto_instansi]);
     }
 
     /**

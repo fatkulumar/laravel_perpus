@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Admin;
 use App\Models\Jurusan;
+use App\Models\User;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -17,9 +19,11 @@ class JurusanController extends Controller
      */
     public function index()
     {
+        $profils = User::all()->first();
+        $foto_instansi = Admin::all()->first();
         $jurusans = Jurusan::all();
         $name = Auth::User()->name;
-        return view('admin.jurusan.index', ['jurusans' =>$jurusans, 'name' => $name]);
+        return view('admin.jurusan.index', ['jurusans' =>$jurusans, 'name' => $name, 'profils' => $profils, 'foto_instansi' =>$foto_instansi]);
     }
 
     /**
@@ -29,8 +33,10 @@ class JurusanController extends Controller
      */
     public function create()
     {
+        $profils = User::all()->first();
+        $foto_instansi = Admin::all()->first();
         $name = Auth::User()->name;
-        return view('admin.jurusan.tambah_jurusan', ['name' => $name]);
+        return view('admin.jurusan.tambah_jurusan', ['name' => $name, 'profils' => $profils, 'foto_instansi' =>$foto_instansi]);
     }
 
     /**
@@ -81,9 +87,11 @@ class JurusanController extends Controller
      */
     public function edit(Jurusan $jurusan, $id)
     {
+        $profils = User::all()->first();
+        $foto_instansi = Admin::all()->first();
         $jurusans = Jurusan::find($id);
         $name = Auth::User()->name;
-        return view('admin.jurusan.edit_jurusan', ['jurusans' => $jurusans, 'name' => $name]);
+        return view('admin.jurusan.edit_jurusan', ['jurusans' => $jurusans, 'name' => $name, 'profils' => $profils, 'foto_instansi' =>$foto_instansi]);
     }
 
     /**

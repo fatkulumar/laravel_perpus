@@ -2,17 +2,21 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Admin;
 use App\Models\Buku;
 use App\Models\Jurusan;
 use App\Models\Kelas;
 use App\Models\Kembali;
 use App\Models\Offering;
 use App\Models\User;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use PDF;
 
 class UserController extends Controller
 {
@@ -23,6 +27,8 @@ class UserController extends Controller
      */
     public function index()
     {
+        $profils = User::all()->first();
+        $foto_instansi = Admin::all()->first();
         $users = DB::table('users')
             ->leftjoin('jurusans', 'users.id_jurusan','=', 'jurusans.id_jurusan')
             ->leftjoin('kelas','users.id_kelas', '=', 'kelas.id_kelas')
@@ -30,7 +36,7 @@ class UserController extends Controller
             ->select('users.*', 'jurusans.*', 'kelas.*', 'offerings.*')
             ->get();
         $name = Auth::User()->name;
-        return view('admin.user.index', ['users' => $users, 'name' => $name]);
+        return view('admin.user.index', ['users' => $users, 'name' => $name, 'profils' => $profils, 'foto_instansi' => $foto_instansi]);
     }
 
     /**
@@ -170,10 +176,11 @@ class UserController extends Controller
 
     public function indexUser(Request $request)
     {
-        $fotoku = Auth::user()->fotoku;
-        $request->session()->put('fotoku', $fotoku);
+        $profils = Auth::user()->fotoku;
+        $request->session()->put('fotoku', $profils);
         $name = Auth::user()->name;
-        return view('user.index_user', ['name' => $name]);
+        $logos = Admin::all()->first();
+        return view('user.index_user', ['name' => $name, 'logos' => $logos, 'profils' =>$profils]);
     }
 
     public function bukuUser()
@@ -196,5 +203,131 @@ class UserController extends Controller
             ->get();
         
         return view('user.pinjam.index', ['name' => $name, 'pinjams' => $pinjams]);
+    }
+
+    public function userProfil()
+    {
+        $name = Auth::user()->name;
+        $email = Auth::user()->email;
+        $logos = Admin::all()->first();
+        $id = Auth::user()->id;
+        $profils = User::where('id', $id)->first();
+        $data_users = DB::table('users')
+            ->join('kelas', 'users.id_kelas', '=', 'kelas.id_kelas')
+            ->join('jurusans','users.id_jurusan', '=', 'jurusans.id_jurusan')
+            ->join('offerings', 'users.id_offering', '=', 'offerings.id_offering')
+            ->select('users.fotoku', 'kelas.nama_kelas', 'offerings.nama_offering', 'jurusans.nama_jurusan')
+            ->where('users.id', '=', $id)
+            ->first();
+        return view('user.profil.index', ['name' => $name, 'profils' => $profils, 'id' => $id, 'email' => $email, 'data_users' => $data_users, 'logos' => $logos]);
+    }
+
+    public function userProfilEdit($id)
+    {
+        $name = Auth::user()->name;
+        $fotoku = Auth::user()->fotoku;
+        $email = Auth::user()->email;
+        $logos = Admin::all()->first();
+        $kelass = Kelas::all();
+        $jurusans = Jurusan::all();
+        $offerings = Offering::all();
+        $profils = User::where('id', $id)->first();
+        $data_users = DB::table('users')
+            ->join('kelas', 'users.id_kelas', '=', 'kelas.id_kelas')
+            ->join('jurusans','users.id_jurusan', '=', 'jurusans.id_jurusan')
+            ->join('offerings', 'users.id_offering', '=', 'offerings.id_offering')
+            ->select('users.id', 'users.fotoku', 'kelas.*', 'offerings.*', 'jurusans.*')
+            ->where('users.id', '=', $id)
+            ->first();
+        return view('user.profil.edit_profil', ['logos' => $logos, 'id' => $id, 'email' => $email, 'profils' => $profils, 'data_users' => $data_users, 'name' => $name, 'kelass' => $kelass, 'jurusans' => $jurusans, 'offerings' => $offerings, 'fotoku' => $fotoku]);
+    }
+
+    public function userProfilUpdate(Request $request, $id)
+    {
+        $rules = [
+            'name' => 'required',
+            'email' => 'required',
+            'id_kelas' => 'required',
+            'id_jurusan' => 'required',
+            'id_offering' => 'required',
+            'fotoku' => 'image|nullable|image|mimes:jpg,png,jpeg'
+        ];
+
+        $validator = Validator::make($request->all(),$rules);
+
+        if ($validator->fails()) {
+            return redirect('user/profil')->withInput()->withErrors($validator);
+        } else {
+            try {
+                //upload gambar
+                $file = $request->file('fotoku');
+                $nama_file= $file->getClientOriginalName();
+                $extension = $request->file('fotoku')->extension();
+                $imgname = $nama_file .' '. Carbon::now()->format('d-m-yy H-i-s').'.'.$extension;
+                $tujuan_upload = Storage::putFileAs('public/fotoku', $file, $imgname);
+
+                $users = User::where('id', $id)->update([
+                    'name' => $request->name,
+                    'id_kelas' => $request->id_kelas,
+                    'id_jurusan' => $request->id_jurusan,
+                    'id_offering' => $request->id_offering,
+                    'fotoku' => $imgname
+                ]);
+                
+                return redirect('/user/profil')->with('status', 'Profil Berhasil Diubah');
+            } catch (Exception $e) {
+                return redirect('/user/profil')->with('failed', 'Operation Failed');
+            }
+        }
+    }
+
+    public function grafikUser()
+    {
+        $nis = Auth::user()->nis;
+        $name = Auth::user()->name;
+        $profils = Auth::user()->fotoku;
+        $dendas = Kembali::where('nis', $nis)->where('status_denda', '=', null)->sum('denda');
+        $dendaku = Kembali::where('nis', $nis)->where('denda', '!=', null)->where('status_denda', '=', null)->get();
+        $lunas = Kembali::where('nis', $nis)->where('status_denda', '=', 1)->sum('denda');
+        $denda_lunas = Kembali::where('nis', $nis)->where('status_denda', '=', 1)->get();
+        $bukus = Kembali::where('nis', $nis)->where('tgl_kembali', '!=' , null)->count('id_buku');
+        $buku_pinjams = Kembali::where('nis', $nis)->where('tgl_kembali', '!=', null)->get();
+        $logos = Admin::all()->first();
+
+        // $tgl1 = Kembali::all()->where('nis', $nis)->first()->tgl_harus_kembali;
+        // $tgl2 = Kembali::all()->where('nis', $nis)->first()->tgl_kembali;
+        // $tanggal1 = date_create($tgl1);
+        // $tanggal2 = date_create($tgl2);
+        // $selisih = date_diff($tanggal1, $tanggal2);
+        // $selisih_tanggal = $selisih->d;
+        // $c = Carbon::date_diff($tgl1,$tgl2);
+        return view('user.grafik.index', ['dendas' => $dendas, 'bukus' => $bukus,'logos' => $logos, 'name' => $name, 'profils' => $profils, 'buku_pinjams' => $buku_pinjams,'dendaku' => $dendaku, 'lunas' => $lunas, 'denda_lunas' => $denda_lunas]);
+    }
+
+    public function peminjaman(Request $request)
+    {
+        $nis = Auth::user()->nis;
+        $date_pinjam = $request->datePickerPeminjamanku;
+        $date1 = substr($date_pinjam, 0, 10);
+        $date2 = substr($date_pinjam, 13);
+        $tgl1 = date('d-m-yy', strtotime($date1));
+        $tgl2 = date('d-m-yy', strtotime($date2));
+        $pinjams = DB::table('bukus')
+            ->join('kembalis', function($join) {
+                $join->on('bukus.id_buku', '=', 'kembalis.id_buku');
+            })
+            ->join('users', function($join) {
+                $join->on('kembalis.nis', '=', 'users.nis');
+            })
+            ->where('kembalis.nis', $nis)
+            ->where('tgl_kembali', '!=', null)
+            ->whereBetween('kembalis.tgl_pinjam',  [$tgl1, $tgl2] )
+            ->get();
+        // dd($pinjams);
+        $foto_instansi = Admin::all()->first();
+        $nama_pdf = Carbon::now()->format('d-m-yy H-i-s');
+        $extension = '.pdf';
+        $pdf = PDF::loadView('user.pdf.pinjam', ['pinjams' => $pinjams, 'foto_instansi' => $foto_instansi]);
+        return $pdf->stream('Laporan Peminjamanku' . ' ' . $nama_pdf . $extension);   
     }
 }

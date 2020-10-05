@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Admin;
 use App\Models\Offering;
+use App\Models\User;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -17,9 +19,12 @@ class OfferingController extends Controller
      */
     public function index()
     {
+        $profils = User::all()->first();
+        $foto_instansi = Admin::all()->first();
         $offerings = Offering::all();
         $name = Auth::User()->name;
-        return view('admin.offering.index', ['offerings' => $offerings, 'name' => $name]);
+        return view('admin.offering.index', ['offerings' => $offerings, 'name' => $name, 
+        'profils' => $profils, 'foto_instansi' =>$foto_instansi]);
     }
 
     /**
@@ -29,8 +34,11 @@ class OfferingController extends Controller
      */
     public function create()
     {
+        $profils = User::all()->first();
+        $foto_instansi = Admin::all()->first();
         $name = Auth::User()->name;
-        return view('admin.offering.tambah_offering', ['name' => $name]);
+        return view('admin.offering.tambah_offering', ['name' => $name, 
+        'profils' => $profils, 'foto_instansi' =>$foto_instansi]);
     }
 
     /**
@@ -81,9 +89,12 @@ class OfferingController extends Controller
      */
     public function edit(Offering $offering, $id)
     {
+        $profils = User::all()->first();
+        $foto_instansi = Admin::all()->first();
         $name = Auth::User()->name;
         $offerings = Offering::find($id);
-        return view('admin.offering.edit_offering', ['offerings' => $offerings, 'name' => $name]);
+        return view('admin.offering.edit_offering', ['offerings' => $offerings, 'name' => $name, 
+        'profils' => $profils, 'foto_instansi' =>$foto_instansi]);
     }
 
     /**

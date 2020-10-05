@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Admin;
 use App\Models\Kembali;
 use App\Models\Pinjam;
+use App\Models\User;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
@@ -19,13 +21,16 @@ class PinjamController extends Controller
      */
     public function index()
     {
+        $profils = User::all()->first();
+        $foto_instansi = Admin::all()->first();
         $pinjams = DB::table('bukus')
             ->join('kembalis', 'bukus.id_buku', '=', 'kembalis.id_buku')
             ->join('users', 'kembalis.nis', '=', 'users.nis')
             ->select('users.*', 'bukus.*', 'kembalis.*')
             ->get();
         $name = Auth::User()->name;
-        return view('admin.pinjam.index', ['name' => $name, 'pinjams' => $pinjams]);
+        return view('admin.pinjam.index', ['name' => $name, 'pinjams' => $pinjams, 
+        'profils' => $profils, 'foto_instansi' =>$foto_instansi]);
     }
 
     /**
@@ -40,7 +45,8 @@ class PinjamController extends Controller
             $selisih_tgl_kembali = (Carbon::now())->diffInDays($tgl_harus_kembali);
             $tgl_kembali = Carbon::now()->format('d-m-yy');
 
-            $batas_selisih = 3;
+            $batas_pinjam = Admin::all()->first()->batas_pinjam_buku;
+            $batas_selisih = $batas_pinjam;
             $atur_denda = 1000;
             if($selisih_tgl_kembali > $batas_selisih){
                 $denda = ($selisih_tgl_kembali - $batas_selisih ) * $atur_denda;

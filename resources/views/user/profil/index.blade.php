@@ -1,4 +1,4 @@
-@extends('admin.index_admin')
+@extends('user.index_user')
 
 @section('content')
 
@@ -25,7 +25,7 @@
                     </h1>
                 </div>
                 <div class="col-md-6">
-                    <a class="btn btn-danger float-right btn-sm mt-2" href="/admin/profil/edit/ {{ $id }}">Edit</a>
+                    <a class="btn btn-danger float-right btn-sm mt-2" href="/user/profil/edit/{{ $id }}">Edit</a>
                 </div>
             </div>
         </div>
@@ -38,16 +38,11 @@
                     
             <div class="row">
                 <div class="col-md-6"> 
-                    <img style="margin-left: 120px" width="40%" class="" src="{{ Storage::url('fotoku/') }}{{$profils->fotoku}}" class="elevation-1" alt="User Image"></div>
+                    <img style="margin-left: 60px" width="70%" class="" src="{{ Storage::url('fotoku/') }}{{$profils->fotoku}}" class="elevation-1" alt="User Image"></div>
                         <div class="col-md-6">
                             <table class="table table-bordered">
                                 <tr>
-                                    <td>Nama Instansi</td>
-                                    <td>{{ $foto_instansi->nama_instansi }}</td>
-                                </tr>
-
-                                <tr>
-                                    <td>Nama Admin</td>
+                                    <td>Nama</td>
                                     <td>{{ $name }}</td>
                                 </tr>
                                 
@@ -55,6 +50,26 @@
                                     <td>E Mail</td>
                                     <td>{{ $email }}</td>
                                 </tr>
+
+                                <tr>
+                                    <td>Kelas</td>
+                                    <td>{{ $data_users->nama_kelas }}</td>
+                                </tr>
+
+                                <tr>
+                                    <td>Jurusan</td>
+                                    <td>{{ $data_users->nama_jurusan }}</td>
+                                </tr>
+
+                                <tr>
+                                    <td>Offering</td>
+                                    <td>{{ $data_users->nama_offering }}</td>
+                                </tr>
+
+                                {{-- <tr>
+                                    <td>Offering</td>
+                                    <td>{{ $data_users->fotoku }}</td>
+                                </tr> --}}
                                 
                             </table>
                         </div>

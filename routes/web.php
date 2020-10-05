@@ -56,7 +56,7 @@ Route::middleware(['auth:sanctum', 'verified'])->middleware('can:isAdmin')->grou
     Route::post('/admin/lokasi_buku/insert', [LokasiBukuController::class, 'store']);
     Route::get('/admin/lokasi_buku/edit/{id}/', [LokasiBukuController::class, 'edit']);
     Route::patch('/admin/lokasi_buku/update/{id}/', [LokasiBukuController::class, 'update']);
-    Route::get('/admin/lokasi_buku/delete/{id}/', [LokasiBukuController::class, 'destroy']);
+    Route::delete('/admin/lokasi_buku/delete/{id}/', [LokasiBukuController::class, 'destroy'])->name('lokasiBuku.destroy');
 
     Route::get('/admin/jurusan', [JurusanController::class, 'index'])->name('jurusan');
     Route::get('/admin/jurusan/create', [JurusanController::class, 'create']);
@@ -86,7 +86,16 @@ Route::middleware(['auth:sanctum', 'verified'])->middleware('can:isAdmin')->grou
     Route::get('/admin/profil', [AdminController::class, 'profil']);
     Route::get('/admin/profil/edit/{id}', [AdminController::class, 'editProfil']);
     Route::patch('/admin/profil/update/{id}', [AdminController::class, 'updateProfil']);
-    Route::get('/image/{filename}', [AdminController::class, 'displayImage'])->name('image.displayImage');
+
+    Route::get('/admin/pinjam/batas/', [AdminController::class, 'setBatasPinjam'])->name('setBatasPinjam');
+    Route::get('/admin/pinjam/batas/edit/{id}', [AdminController::class, 'setBatasPinjamEdit']);
+    Route::patch('/admin/pinjam/batas/update/{id}', [AdminController::class, 'setBatasPinjamUpdate']);
+    
+    Route::get('/admin/grafik', [AdminController::class, 'grafik']);
+    
+    Route::post('/admin/laporan/tanggal_pinjam', [AdminController::class, 'laporanTanggalPinjam']);
+    Route::post('/admin/laporan/tanggal_kembali', [AdminController::class, 'laporanTanggalKembali']);
+   
 
 });
 
@@ -97,6 +106,12 @@ Route::middleware(['auth:sanctum', 'verified'])->middleware('can:isUser')->group
     Route::get('/user/buku/ajax/{id}', [BukuController::class, 'userBukuAjax']);
     Route::get('/user/buku/ajax/pinjam/{id}', [BukuController::class, 'userBukuAjaxPinjam']);
     Route::get('/user/pinjam/response', [BukuController::class, 'responsePinjam']);
+
+    Route::get('/user/profil', [UserController::class, 'userProfil'])->name('userProfil');
+    Route::get('/user/profil/edit/{id}', [UserController::class, 'userProfilEdit']);
+    Route::patch('/user/profil/update/{id}', [UserController::class, 'userProfilUpdate']);
     
+    Route::get('/user/grafik/', [UserController::class, 'grafikUser']);
+    Route::post('/laporan/peminjaman/', [UserController::class, 'peminjaman']);
 });
 

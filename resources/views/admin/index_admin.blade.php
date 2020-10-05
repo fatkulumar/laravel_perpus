@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <title>Admin | Dashboard</title>  
+  <title>Admin | {{ $foto_instansi->nama_instansi }} </title>  
   {{-- template external datatable--}}
 
   <link rel="stylesheet" type="text/css" href="{{ asset('datatable/css/jquery.dataTables.min.css') }}"/>
@@ -77,13 +77,15 @@
           <form method="POST" action="{{ route('logout') }}">
             @csrf
 
-          <a href="{{ route('logout') }}"
-                                onclick="event.preventDefault();
-                                            this.closest('form').submit();">
-            <span class="dropdown-item mt-0">{{ __('Logout') }}</span>
-          </a>
+            <a href="{{ route('logout') }}" onclick="event.preventDefault(); this.closest('form').submit();">
+              <span class="dropdown-item mt-0">{{ __('Logout') }}</span>
+            </a>
            
           </form>
+
+          <x-jet-responsive-nav-link href="/admin/pinjam/batas/" :active="request()->routeIs('setBatasPinjam')">
+            <span class="dropdown-item mt-0">{{ __('Set Batas Pinjam') }}</span>
+          </x-jet-responsive-nav-link>
           {{-- <a class="dropdown-item" href="#">Link 1</a>
           <a class="dropdown-item" href="#">Link 2</a>
           <a class="dropdown-item" href="#">Link 3</a> --}}
@@ -107,10 +109,10 @@
   <!-- Main Sidebar Container -->
   <aside class="main-sidebar sidebar-dark-primary elevation-4">
     <!-- Brand Logo -->
-    <a href="index3.html" class="brand-link">
-      <img src="{{ Storage::url('/fotoku/03-10-2020 10-32-43.jpeg') }}" alt="AdminLTE Logo" class="brand-image img-circle elevation-3"
+    <a href="/admin/profil" class="brand-link">
+      <img src="{{ Storage::url('fotoku/') }}{{$foto_instansi->nama_logo}}" alt="AdminLTE Logo" class="brand-image img-circle elevation-3"
            style="opacity: .8">
-      <span class="brand-text font-weight-light">AdminLTE 3</span>
+      <span class="brand-text font-weight-light">{{$foto_instansi->nama_instansi}}</span>
     </a>
 
     <!-- Sidebar -->
@@ -118,10 +120,10 @@
       <!-- Sidebar user panel (optional) -->
       <div class="user-panel mt-3 pb-3 mb-3 d-flex">
         <div class="image">
-          <img src="{{ asset('adminlte/dist/img/user2-160x160.jpg') }}" class="img-circle elevation-2" alt="User Image">
+        <img src="{{ Storage::url('fotoku/') }}{{$profils->fotoku}}" class="img-circle elevation-2" alt="User Image">
         </div>
         <div class="info">
-          <a href="#" class="d-block">{{ Session::get('fotoku') }}</a>
+          <a href="/admin/profil" class="d-block">{{ $name }}</a>
         </div>
       </div>
 
@@ -136,7 +138,7 @@
             <a href="#" class="nav-link active">
               <i class="nav-icon fas fa-tachometer-alt"></i>
               <p>
-                Dashboard
+                Home
                 <i class="right fas fa-angle-left"></i>
               </p>
             </a>
@@ -144,7 +146,7 @@
             <ul class="nav nav-treeview">
 
               <li class="nav-item">
-                <a href="/admin/user" class="nav-link">
+                <a href="/admin/grafik" class="nav-link">
                   <i class="far fa-circle nav-icon"></i>
                   <p>Grafik</p>
                 </a>
@@ -232,10 +234,17 @@
     
                 <ul class="nav nav-treeview">
     
-                  <li class="nav-item">
-                    <a href="./anggota" class="nav-link active">
+                  <li class="nav-item" data-toggle="modal" data-target="#laporan_tanggal_pinjam">
+                    <a href="#" class="nav-link active">
                       <i class="far fa-circle nav-icon"></i>
-                      <p>Anggota</p>
+                      <p>Lap. Tanggal Pinjam</p>
+                    </a>
+                  </li>
+
+                  <li class="nav-item" data-toggle="modal" data-target="#laporan_tanggal_kembali"">
+                    <a href="#" class="nav-link active">
+                      <i class="far fa-circle nav-icon"></i>
+                      <p>Lap. Tanggal Kembali</p>
                     </a>
                   </li>
                 </ul>    
@@ -265,6 +274,100 @@
     <section class="content">
 
       @yield('content')
+
+      <!-- Modal laporan tanngal kembali-->
+      <div class="modal fade" id="laporan_tanggal_kembali" tabindex="-1" role="dialog" aria-labelledby="laporan_tanggal_kembaliTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+          <div class="modal-content">
+            <div class="modal-header bg-primary">
+              <h5 class="modal-title" id="laporan_tanggal_kembaliTitle"><strong>Lap. Tanggal Kembali</strong></h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              
+              <div class="col-md-12">
+                <div class="card card-primary">
+                  <div class="card-body">
+                    <!-- Date range -->
+                    <div class="form-group">
+                      <label>Date range:</label>
+
+                      <div class="input-group">
+                        <div class="input-group-prepend">
+                          <span class="input-group-text">
+                            <i class="far fa-calendar-alt"></i>
+                          </span>
+                        </div>
+                        <form action="/admin/laporan/tanggal_kembali" method="post">
+                          @csrf
+                        <input type="text" class="form-control float-right" name="datePickerKembali" id="reservation2">
+                      </div>
+                      <!-- /.input group -->
+                    </div>
+                    <!-- /.form group -->
+                  </div>
+                </div>
+              </div>
+
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              <button id="btn_kembali" type="submit" class="btn btn-primary">Download</button>
+            </div>
+          </div>
+        </form>
+        </div>
+      </div>
+
+      <!-- Modal laporan tanngal pinjam -->
+      <div class="modal fade" id="laporan_tanggal_pinjam" tabindex="-1" role="dialog" aria-labelledby="laporan_tanggal_pinjamTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+          <div class="modal-content">
+            <div class="modal-header bg-primary">
+              <h5 class="modal-title" id="exampleModalLongTitle">Lap. Tanggal Pinjam</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+          
+            <div class="modal-body">
+
+              <div class="col-md-12">
+                <div class="card card-primary">
+                  <div class="card-body">
+                    <!-- Date range -->
+                    <div class="form-group">
+                      <label>Date range:</label>
+
+                      <div class="input-group">
+                        <div class="input-group-prepend">
+                          <span class="input-group-text">
+                            <i class="far fa-calendar-alt"></i>
+                          </span>
+                        </div>
+                        <form action="/admin/laporan/tanggal_pinjam" method="post">
+                          @csrf
+                        <input type="text" data-date-format="dd/mm/yyyy" class="form-control float-right" name="datePickerPinjam" id="reservation">
+                      </div>
+                      <!-- /.input group -->
+                    </div>
+                    <!-- /.form group -->
+                  </div>
+                </div>
+              </div>
+
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              <button id="btn_pinjam" type="submit" class="btn btn-primary" data-dismiss="" aria-label="Close">Download</button>
+            </div>
+          </div>
+        </form>
+        </div>
+      </div>
+      
       <!-- disini kontennya -->
     </section>
     <!-- /.content -->
@@ -285,6 +388,10 @@
   <!-- /.control-sidebar -->
 </div>
 <!-- ./wrapper -->
+
+
+
+
 
 <!-- jQuery -->
 <script src="{{ asset('adminlte/plugins/jquery/jquery.min.js') }}"></script>
@@ -322,5 +429,29 @@
 <script src="{{ asset('adminlte/dist/js/demo.js') }}"></script>
 {{-- external datatable --}}
 <script type="text/javascript" src="{{ asset('datatable/js/jquery.dataTables.min.js') }}"></script>
+
+<!-- date-range-picker -->
+<script src="{{ asset('adminlte/plugins/daterangepicker/daterangepicker.js') }}"></script>
+
+
+<script>
+  $(function () {
+    
+    //Date range picker
+    $('#reservation').daterangepicker({
+      autoclose:true
+    })
+    $('#reservation2').daterangepicker()
+
+    $('#btn_pinjam').click(function(){
+      $('#laporan_tanggal_pinjam').modal('hide');
+    })
+
+    $('#btn_kembali').click(function(){
+      $('#laporan_tanggal_kembali').modal('hide');
+    })
+
+  })
+</script>
 </body>
 </html>
