@@ -21,6 +21,7 @@ class CreateKembalisTable extends Migration
             $table->char('tgl_kembali', 10)->nullable();
             $table->char('tgl_harus_kembali', 10);
             $table->integer('denda')->default(0);
+            $table->integer('status_denda')->nullable();
             $table->timestamps();
         });
     }

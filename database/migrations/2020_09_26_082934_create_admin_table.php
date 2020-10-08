@@ -16,9 +16,9 @@ class CreateAdminTable extends Migration
         Schema::table('users', function (Blueprint $table) {
             $table->enum('role', ['user', 'manager', 'admin'])->default('user')->after('password');
             $table->integer('nis');
-            $table->integer('id_kelas');
-            $table->integer('id_jurusan');
-            $table->integer('id_offering');
+            $table->integer('id_kelas')->nullable();
+            $table->integer('id_jurusan')->nullable();
+            $table->integer('id_offering')->nullable();
             $table->text('fotoku')->nullable();
         });
 
@@ -26,7 +26,7 @@ class CreateAdminTable extends Migration
             $table->id('id_admin');
             $table->text('nama_logo');
             $table->text('nama_instansi');
-            $table->integer('batas_pinjam_buku');
+            $table->integer('batas_pinjam_buku')->nullable();
             $table->timestamps();
         });
     }

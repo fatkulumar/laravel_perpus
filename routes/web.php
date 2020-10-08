@@ -11,6 +11,8 @@ use App\Http\Controllers\JurusanController;
 use App\Http\Controllers\KelasController;
 use App\Http\Controllers\OfferingController;
 use App\Http\Controllers\PinjamController;
+use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 
 /*
 |--------------------------------------------------------------------------
@@ -22,11 +24,20 @@ use App\Http\Controllers\PinjamController;
 | contains the "web" middleware group. Now create something great!
 |
 */
-
+// Auth::routes(['verify' => true]);
 
 Route::get('/', function () {
-    return view('welcome');
+    $users = User::count();
+    return view('welcome', ['users' => $users]);
 });
+
+// if(User::count() == 0){
+    // Route::get('/register', function () {
+    //     // return view('admin.login_admin');
+    //     return view('auth.register_admin');
+    // });
+// }
+
 
 // Route::middleware(['auth:sanctum', 'verified'])->get('/dashboard', function () {
 //     return view('dashboard');
@@ -34,6 +45,8 @@ Route::get('/', function () {
 
 
 Route::get('/log', [AdminController::class, 'log'])->name('log');
+Route::get('/register_admin', [AdminController::class, 'registerAdmin'])->name('register.admin');
+Route::post('/register_admin_insert', [AdminController::class, 'registerAdminInsert'])->name('register.admin.insert');
 
 Route::middleware(['auth:sanctum', 'verified'])->middleware('can:isAdmin')->group(function () {
     Route::get('/admin', [AdminController::class, 'index'])->name('admin');
@@ -86,6 +99,10 @@ Route::middleware(['auth:sanctum', 'verified'])->middleware('can:isAdmin')->grou
     Route::get('/admin/profil', [AdminController::class, 'profil']);
     Route::get('/admin/profil/edit/{id}', [AdminController::class, 'editProfil']);
     Route::patch('/admin/profil/update/{id}', [AdminController::class, 'updateProfil']);
+    
+    Route::get('/admin/profil/logo', [AdminController::class, 'profilLogo'])->name('profil.logo');
+    Route::get('/admin/profil/logo/edit/{id}', [AdminController::class, 'editLogo']);
+    Route::patch('/admin/profil/logo/update/{id}', [AdminController::class, 'editLogoUpdate']);
 
     Route::get('/admin/pinjam/batas/', [AdminController::class, 'setBatasPinjam'])->name('setBatasPinjam');
     Route::get('/admin/pinjam/batas/edit/{id}', [AdminController::class, 'setBatasPinjamEdit']);

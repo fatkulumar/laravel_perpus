@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Admin;
 use App\Models\Buku;
+use App\Models\Kelas;
 use App\Models\Kembali;
 use App\Models\User;
 use Carbon\Carbon;
@@ -11,6 +12,7 @@ use Exception;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use PDF;
@@ -65,13 +67,68 @@ class AdminController extends Controller
         return view('admin.profil.edit_profil', ['name' => $name, 'email' => $email, 'profils' => $profils, 'id' => $id, 'foto_instansi' => $foto_instansi, 'profils' => $profils]);
     }
 
-    public function updateProfil(Request $request ,$id)
+    public function editLogo($id)
+    {
+        $name = Auth::user()->name;
+        $profils = User::all()->first();
+        $foto_instansi = Admin::all()->first();
+        return view("admin.profil.edit_logo",['name' => $name, 'profils' => $profils,'id' => $id, 'foto_instansi' => $foto_instansi]);
+    }
+
+    public function editLogoUpdate(Request $request, $id)
     {
         $rules = [
             'nama_instansi' => 'required',
-            'name' => 'required',
-            'fotoku' => 'image|nullable|image|mimes:jpg,png,jpeg',
             'nama_logo' => 'image|nullable|image|mimes:jpg,png,jpeg'
+        ];
+
+        $validator = Validator::make($request->all(),$rules);
+
+        if($validator->fails()) {
+            return redirect('/admin/profil/logo')->withInput()->withErrors($validator);
+        }else {
+            $nama_instansi = $request->nama_instansi;
+            $nama_logo = $request->nama_logo;
+            $logoku = Admin::all()->first()->nama_logo;
+            
+            if($nama_logo == ""){
+                $imgname_logo = $logoku;
+            }else{
+                $file = $request->file('nama_logo');
+                $nama_file= $file->getClientOriginalName();
+                $extension = $request->file('nama_logo')->extension();
+                $imgname_logo = $nama_file .' '. Carbon::now()->format('d-m-yy H-i-s').'.'.$extension;
+                $tujuan_upload = Storage::putFileAs('public/fotoku', $file, $imgname_logo);
+            }
+            try {
+                $users = Admin::where('id_admin', $id)->update([
+                    'nama_instansi' => $nama_instansi,
+                    'nama_logo' => $imgname_logo
+                ]);
+
+                return redirect('/admin/profil/logo')->with('status', 'Profil Berhasil Diubah');
+            } catch (Exception $e) {
+                return redirect('/admin/profil/logo')->with('failed', 'Operation Failed');
+            }
+        }
+    }
+
+    public function profilLogo()
+    {
+        $name = Auth::user()->name;
+        $profils = User::all()->first();
+        $id = Auth::user()->id;
+        $email = Auth::user()->email;
+        $foto_instansi = Admin::all()->first();
+        return view("admin.profil.index_logo", ['name' => $name, 'profils' => $profils,'id' => $id, 'email' => $email, 'foto_instansi' => $foto_instansi]);
+    }
+
+    public function updateProfil(Request $request ,$id)
+    {
+        // dd($request->fotoku);
+        $rules = [
+            'name' => 'required',
+            // 'fotoku' => 'image|nullable|image|mimes:jpg,png,jpeg'
         ];
 
         $validator = Validator::make($request->all(),$rules);
@@ -79,27 +136,18 @@ class AdminController extends Controller
         if($validator->fails()) {
             return redirect('/admin/buku')->withInput()->withErrors($validator);
         }else {
-
-            try {
-                // upload file fotoku
+            $fotoku =Auth::user()->fotoku;
+            
+            if(empty($request->fotoku)){
+                $imgname = $fotoku;
+            }else{
                 $file = $request->file('fotoku');
                 $nama_file= $file->getClientOriginalName();
                 $extension = $request->file('fotoku')->extension();
                 $imgname = $nama_file .' '. Carbon::now()->format('d-m-yy H-i-s').'.'.$extension;
                 $tujuan_upload = Storage::putFileAs('public/fotoku', $file, $imgname);
-
-                // upload logo
-                $file_logo = $request->file('nama_logo');
-                $nama_file_logo = $file_logo->getClientOriginalName();
-                $extension_logo = $request->file('nama_logo')->extension();
-                $imgname_logo = $nama_file_logo .' '. Carbon::now()->format('d-m-yy H-i-s').'.'.$extension_logo;
-                $tujuan_upload_logo = Storage::putFileAs('public/fotoku', $file_logo, $imgname_logo);
-
-                $admins = Admin::where('id_admin', $id)->update([
-                    'nama_instansi' => $request->nama_instansi,
-                    'nama_logo' => $imgname_logo
-                ]);
-
+            }
+            try {
                 $users = User::where('id', $id)->update([
                     'name' => $request->name,
                     'fotoku' => $imgname
@@ -152,6 +200,18 @@ class AdminController extends Controller
 
     public function grafik()
     {
+        $tb_kembalis = Kembali::count();
+        if($tb_kembalis == null){
+            $name = Auth::user()->name;
+            $profils = User::all()->first();
+            $foto_instansi = Admin::all()->first();
+            $us = User::all();
+            $pinjams = Kembali::all();
+            $dendas = 0;
+            $bukus = 0;
+            $users =  User::count();
+            return view('admin.grafik.index', ['name' => $name, 'profils' => $profils, 'foto_instansi' => $foto_instansi,'dendas' =>$dendas, 'bukus' => $bukus,'users' => $users, 'us' => $us,'bu' => $us, 'pinjams' => $pinjams]);
+        }
         $name = Auth::user()->name;
         $profils = User::all()->first();
         $foto_instansi = Admin::all()->first();
@@ -216,6 +276,70 @@ class AdminController extends Controller
         $extension = '.pdf';
         $pdf = PDF::loadView('admin.pdf.kembali', ['kembalis' => $kembalis, 'foto_instansi' => $foto_instansi]);
         return $pdf->stream('Laporan Kembali' . ' ' . $nama_pdf . $extension);
+    }
+
+    public function registerAdmin()
+    {
+        return view('auth.register_admin');
+    }
+
+    public function registerAdminInsert(Request $request)
+    {
+        $rules = [
+            'nip' => 'required',
+            'nama' => 'required',
+            'nama_instansi' => 'required',
+            'email' => 'required',
+            'password' => 'required',
+            'password_confirmation' => 'required',
+            'nama_logo' => 'image|nullable|image|mimes:jpg,png,jpeg'
+        ];
+
+        $validator = Validator::make($request->all(),$rules);
+
+        if($validator->fails()) {
+            return redirect('/register_admin')->withInput()->withErrors($validator);
+        }else {
+            $nip = $request->nip;
+            $nama = $request->nama;
+            $nama_instansi = $request->nama_instansi;
+            $role = $request->role;
+            $email = $request->email;
+            $password = $request->password;
+            $pass = Hash::make($password);
+            //upload
+            $file = $request->file('nama_logo');
+            $nama_file= $file->getClientOriginalName();
+            $extension = $request->file('nama_logo')->extension();
+            $imgname_logo = $nama_file .' '. Carbon::now()->format('d-m-yy H-i-s').'.'.$extension;
+            $tujuan_upload = Storage::putFileAs('public/fotoku', $file, $imgname_logo);
+            // try {
+
+                $admins = new Admin;
+                $admins->nama_logo = $imgname_logo;
+                $admins->nama_instansi = $nama_instansi;
+                $admins->save();
+
+                $users = new User;
+                $users->nis = $nip;
+                $users->name = $nama;
+                $users->role = $role;
+                $users->email = $email;
+                $users->password = $pass;
+                $users->save();
+
+                $emailku = User::all()->first()->email;
+                $passwordku = User::all()->first()->password;
+
+            if($emailku == $email && $passwordku == $pass){
+                return redirect('/login');
+            }
+
+                // return redirect('/register_admin')->with('status', 'Profil Berhasil Diubah');
+            // } catch (Exception $e) {
+                // return redirect('/register_admin')->with('failed', 'Operation Failed');
+            // }
+        }
     }
 
     

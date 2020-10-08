@@ -74,6 +74,11 @@
           <x-jet-responsive-nav-link href="/admin/profil" :active="request()->routeIs('profile.show')">
             <span class="dropdown-item mt-0">{{ __('Profile') }}</span>
           </x-jet-responsive-nav-link>
+
+          <x-jet-responsive-nav-link href="/admin/profil/logo" :active="request()->routeIs('profile.logo')">
+            <span class="dropdown-item mt-0">{{ __('Profile Logo') }}</span>
+          </x-jet-responsive-nav-link>
+
           <form method="POST" action="{{ route('logout') }}">
             @csrf
 

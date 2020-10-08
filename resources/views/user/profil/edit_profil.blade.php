@@ -18,7 +18,7 @@
         <div class="card-body">
             <div class="table table-responsive">
 
-            <form action="/user/profil/update/{{ $data_users->id }}" method="POST" enctype="multipart/form-data">
+            <form action="/user/profil/update/{{ $id }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     @method('PATCH')
 
@@ -70,7 +70,7 @@
 
                     <div class="form-group">
                         <label for="fotoku">Fotoku</label>
-                        <input class="form-control" accept="image/" onchange="loadFile(event)" type="file" name="fotoku" value="" required>
+                        <input class="form-control" accept="image/" onchange="loadFile(event)" type="file" name="fotoku" accept="image/*">
                     </div>
 
                     <!-- image preview -->
@@ -87,7 +87,7 @@
                     </script>
 
                     <div>
-                        <button class="btn btn-primary" type="submit" name="editProfil">Edit Offering</button>
+                        <button class="btn btn-primary" type="submit" name="editProfil">Edit Profil</button>
                     </div>
                 </form>
 

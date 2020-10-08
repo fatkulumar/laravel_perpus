@@ -1,4 +1,3 @@
-## update composer
 ## laravel 8
 ## install ui
 

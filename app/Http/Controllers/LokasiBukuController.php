@@ -133,8 +133,8 @@ class LokasiBukuController extends Controller
     public function destroy(LokasiBuku $lokasiBuku, $id)
     {
         try {
-            $lokasi_bukus = LokasiBuku::find($id);
-            $lokasi_bukus->delete();
+            $lokasi_bukus = LokasiBuku::where('id_lokasi_buku', $id)->delete();
+            // $lokasi_bukus->delete();
             return redirect('/admin/lokasi_buku')->with('status', 'Hapus Lokasi Buku Berhasil');
         } catch (Exception $e) {
             return redirect('/admin/lokasi_buku')->with('failed', 'Operation Failed');

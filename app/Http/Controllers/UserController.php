@@ -176,7 +176,8 @@ class UserController extends Controller
 
     public function indexUser(Request $request)
     {
-        $profils = Auth::user()->fotoku;
+        $id = Auth::user()->id;
+        $profils = User::where('id', $id)->first();
         $request->session()->put('fotoku', $profils);
         $name = Auth::user()->name;
         $logos = Admin::all()->first();
@@ -185,24 +186,29 @@ class UserController extends Controller
 
     public function bukuUser()
     {
+        $nis = Auth::user()->nis;
+        $logos = Admin::all()->first();
+        $profils = User::where('nis', $nis)->first();
         $bukus = Buku::all();
         $name = Auth::user()->name;
-        return view('user.buku.index', ['bukus' => $bukus, 'name' => $name]);
+        return view('user.buku.index', ['bukus' => $bukus, 'name' => $name, 'logos' => $logos, 'profils' =>$profils]);
     }
 
     public function pinjamUser()
     {
+        $nis = Auth::user()->nis;
+        $logos = Admin::all()->first();
+        $profils = User::where('nis', $nis)->first();
         $name = Auth::user()->name;
         $email = Auth::user()->email;
         $pinjams = DB::table('kembalis')
-            // ->join('pinjams', 'kembalis.id_pinjam', '=', 'pinjams.id_pinjam')
             ->join('bukus', 'kembalis.id_buku', '=', 'bukus.id_buku')
             ->join('users', 'users.nis', '=', 'kembalis.nis')
             ->select('kembalis.*', 'bukus.*', 'users.*')
             ->where('users.email', '=', $email)
             ->get();
         
-        return view('user.pinjam.index', ['name' => $name, 'pinjams' => $pinjams]);
+        return view('user.pinjam.index', ['name' => $name, 'pinjams' => $pinjams, 'logos' => $logos, 'profils' => $profils]);
     }
 
     public function userProfil()
@@ -212,6 +218,15 @@ class UserController extends Controller
         $logos = Admin::all()->first();
         $id = Auth::user()->id;
         $profils = User::where('id', $id)->first();
+
+        $id_kelas = User::where('id', $id)->first()->id_kelas;
+        $id_jurusan = User::where('id', $id)->first()->id_jurusan;
+        $id_offering = User::where('id', $id)->first()->id_offering;
+
+        if(empty($id_kelas) || empty($id_jurusan) || empty($id_offering)){
+            $data_users = User::where('id', $id)->first();
+        }else{
+        
         $data_users = DB::table('users')
             ->join('kelas', 'users.id_kelas', '=', 'kelas.id_kelas')
             ->join('jurusans','users.id_jurusan', '=', 'jurusans.id_jurusan')
@@ -219,6 +234,7 @@ class UserController extends Controller
             ->select('users.fotoku', 'kelas.nama_kelas', 'offerings.nama_offering', 'jurusans.nama_jurusan')
             ->where('users.id', '=', $id)
             ->first();
+        }
         return view('user.profil.index', ['name' => $name, 'profils' => $profils, 'id' => $id, 'email' => $email, 'data_users' => $data_users, 'logos' => $logos]);
     }
 
@@ -250,21 +266,26 @@ class UserController extends Controller
             'id_kelas' => 'required',
             'id_jurusan' => 'required',
             'id_offering' => 'required',
-            'fotoku' => 'image|nullable|image|mimes:jpg,png,jpeg'
+            // 'fotoku' => 'image|nullable|image|mimes:jpg,png,jpeg'
         ];
 
         $validator = Validator::make($request->all(),$rules);
 
         if ($validator->fails()) {
-            return redirect('user/profil')->withInput()->withErrors($validator);
+            return redirect('user/profil')->withInput()->withErrors($validator)->with('failed', 'Operation Failed');
         } else {
             try {
                 //upload gambar
-                $file = $request->file('fotoku');
-                $nama_file= $file->getClientOriginalName();
-                $extension = $request->file('fotoku')->extension();
-                $imgname = $nama_file .' '. Carbon::now()->format('d-m-yy H-i-s').'.'.$extension;
-                $tujuan_upload = Storage::putFileAs('public/fotoku', $file, $imgname);
+                $fotoku = Auth::user()->fotoku;
+                if($request->fotoku == "") {
+                    $imgname = $fotoku;
+                }else{
+                    $file = $request->file('fotoku');
+                    $nama_file= $file->getClientOriginalName();
+                    $extension = $request->file('fotoku')->extension();
+                    $imgname = $nama_file .' '. Carbon::now()->format('d-m-yy H-i-s').'.'.$extension;
+                    $tujuan_upload = Storage::putFileAs('public/fotoku', $file, $imgname);
+                }
 
                 $users = User::where('id', $id)->update([
                     'name' => $request->name,
@@ -285,7 +306,7 @@ class UserController extends Controller
     {
         $nis = Auth::user()->nis;
         $name = Auth::user()->name;
-        $profils = Auth::user()->fotoku;
+        $profils = User::where('nis', $nis)->first();
         $dendas = Kembali::where('nis', $nis)->where('status_denda', '=', null)->sum('denda');
         $dendaku = Kembali::where('nis', $nis)->where('denda', '!=', null)->where('status_denda', '=', null)->get();
         $lunas = Kembali::where('nis', $nis)->where('status_denda', '=', 1)->sum('denda');

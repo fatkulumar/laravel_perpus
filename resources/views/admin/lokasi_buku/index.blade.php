@@ -62,17 +62,14 @@
                             <td>{{ $no++ }}</td>
                             <td>{{ $lokasi_buku->lokasi_buku }}</td>
                             <td>
-                            <a onclick="return confirm('Yakin Menghapus {{ $lokasi_buku->lokasi_buku }}?')" class="btn btn-danger btn-sm" href="/admin/lokasi_buku/delete/{{ $lokasi_buku->id_lokasi_buku }}">Hapus</a> <a class="btn btn-primary btn-sm" href="/admin/lokasi_buku/edit/{{ $lokasi_buku->id_lokasi_buku }}">Edit</a>
+                                <form action="/admin/lokasi_buku/delete/{{$lokasi_buku->id_lokasi_buku}}" method="post">
+                                    @method('DELETE')
+                                    @csrf
+                                        <button class="btn btn-danger btn-sm"  onclick="return confirm('Yakin Menghapus {{ $lokasi_buku->lokasi_buku }}?')" type="submit">Hapus</button>
+                                        <a class="btn btn-primary btn-sm" href="/admin/lokasi_buku/edit/{{ $lokasi_buku->id_lokasi_buku }}">Edit</a>
+                                </form> 
                             </td>
-                            <td>
-
-                                <form action="/admin/lokasi_buku/delete/{{$lokasi_buku->lokasi_buku}}" method="post">
-                                @method('DELETE')
-                                @csrf
-                                <button type="submit">Hapus</button>
-
-                                </form>
-                            </td>
+                            
                         </tr>
 
                     @endforeach
