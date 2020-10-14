@@ -1,3 +1,5 @@
+## comoser update
+## copy .env.example
 ## laravel 8
 ## install ui
 

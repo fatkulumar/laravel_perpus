@@ -17,7 +17,7 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Expiration Minutes
+    | Expiration Minutes 
     |--------------------------------------------------------------------------
     |
     | This value controls the number of minutes until an issued token will be

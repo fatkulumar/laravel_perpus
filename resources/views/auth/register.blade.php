@@ -1,8 +1,12 @@
+<title>REGISTER | PERPUS</title>
 <x-guest-layout>
     <x-jet-authentication-card>
         <x-slot name="logo">
             {{-- <x-jet-authentication-card-logo /> --}}
-        <img width="100px" src="{{ asset('grisa.png') }}" alt="" srcset="">
+        @php
+            $logo = DB::table('admins')->first()->nama_logo;
+        @endphp
+    <img width="100px" src="{{ Storage::url('fotoku/') }}{{ $logo }}" srcset="">
 
         </x-slot>
 
@@ -10,10 +14,12 @@
 
         <form method="POST" action="{{ route('register') }}">
             @csrf
+            
+            <input type="hidden" name="role" value="user">
 
             <div>
                 <x-jet-label value="{{ __('NIS') }}" />
-                <x-jet-input class="block mt-1 w-full" type="text" name="nis" :value="old('nis`')" required autofocus autocomplete="NIS" />
+                <x-jet-input class="block mt-1 w-full" type="text" name="nis" :value="old('nis')" required autofocus autocomplete="nis" />
             </div>
 
             <div class="mt-4">

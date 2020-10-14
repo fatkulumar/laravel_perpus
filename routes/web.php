@@ -46,9 +46,10 @@ Route::get('/', function () {
 
 Route::get('/log', [AdminController::class, 'log'])->name('log');
 Route::get('/register_admin', [AdminController::class, 'registerAdmin'])->name('register.admin');
-Route::post('/register_admin_insert', [AdminController::class, 'registerAdminInsert'])->name('register.admin.insert');
+// Route::post('/register_admin_insert', [AdminController::class, 'registerAdminInsert'])->name('register.admin.insert');
 
 Route::middleware(['auth:sanctum', 'verified'])->middleware('can:isAdmin')->group(function () {
+// Route::middleware('can:isAdmin')->group(function () {
     Route::get('/admin', [AdminController::class, 'index'])->name('admin');
     Route::get('/admin/buku', [BukuController::class, 'index']);
     Route::get('/admin/buku/create', [BukuController::class, 'create']);

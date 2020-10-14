@@ -15,7 +15,7 @@ class CreateAdminTable extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
             $table->enum('role', ['user', 'manager', 'admin'])->default('user')->after('password');
-            $table->integer('nis');
+            $table->integer('nis')->unique();
             $table->integer('id_kelas')->nullable();
             $table->integer('id_jurusan')->nullable();
             $table->integer('id_offering')->nullable();

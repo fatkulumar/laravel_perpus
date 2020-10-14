@@ -79,6 +79,10 @@
             <span class="dropdown-item mt-0">{{ __('Profile Logo') }}</span>
           </x-jet-responsive-nav-link>
 
+          <x-jet-responsive-nav-link href="/admin/pinjam/batas/" :active="request()->routeIs('setBatasPinjam')">
+            <span class="dropdown-item mt-0">{{ __('Set Batas Pinjam') }}</span>
+          </x-jet-responsive-nav-link>
+
           <form method="POST" action="{{ route('logout') }}">
             @csrf
 
@@ -87,13 +91,7 @@
             </a>
            
           </form>
-
-          <x-jet-responsive-nav-link href="/admin/pinjam/batas/" :active="request()->routeIs('setBatasPinjam')">
-            <span class="dropdown-item mt-0">{{ __('Set Batas Pinjam') }}</span>
-          </x-jet-responsive-nav-link>
-          {{-- <a class="dropdown-item" href="#">Link 1</a>
-          <a class="dropdown-item" href="#">Link 2</a>
-          <a class="dropdown-item" href="#">Link 3</a> --}}
+          
         </div>
       </div> 
 

@@ -49,7 +49,11 @@
             <tbody>
                 <?php $no = 1 ?>
                 @foreach ($users as $user)
-                    
+                    @if ($no == 1)
+                        @php
+                            continue;
+                        @endphp
+                    @endif
                 <tr>
                     <td>{{ $no++ }}</td>
                     <td>{{ $user->nis }}</td>

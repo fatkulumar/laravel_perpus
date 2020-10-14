@@ -1,8 +1,13 @@
+<title>LOGIN | PERPUS</title>
+
 <x-guest-layout>
     <x-jet-authentication-card>
         <x-slot name="logo">
             {{-- <x-jet-authentication-card-logo /> --}}
-            <img width="100px" src="{{ asset('grisa.png') }}" alt="" srcset="">
+            @php
+                $logo = DB::table('admins')->first()->nama_logo;
+            @endphp
+            <img width="100px" src="{{ Storage::url('fotoku/') }}{{ $logo }}" srcset="">
         </x-slot>
 
         <x-jet-validation-errors class="mb-4" />

@@ -9,6 +9,7 @@ use App\Models\Kembali;
 use App\Models\User;
 use Carbon\Carbon;
 use Exception;
+use Illuminate\Auth\Events\Registered;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -283,64 +284,70 @@ class AdminController extends Controller
         return view('auth.register_admin');
     }
 
-    public function registerAdminInsert(Request $request)
-    {
-        $rules = [
-            'nip' => 'required',
-            'nama' => 'required',
-            'nama_instansi' => 'required',
-            'email' => 'required',
-            'password' => 'required',
-            'password_confirmation' => 'required',
-            'nama_logo' => 'image|nullable|image|mimes:jpg,png,jpeg'
-        ];
+    // public function registerAdminInsert(Request $request)
+    // {
+    //     $rules = [
+    //         'nip' => 'required',
+    //         'name' => 'required',
+    //         'nama_instansi' => 'required',
+    //         'email' => 'required',
+    //         'password' => 'required',
+    //         'password_confirmation' => 'required',
+    //         'nama_logo' => 'image|nullable|image|mimes:jpg,png,jpeg'
+    //     ];
 
-        $validator = Validator::make($request->all(),$rules);
+    //     $validator = Validator::make($request->all(),$rules);
 
-        if($validator->fails()) {
-            return redirect('/register_admin')->withInput()->withErrors($validator);
-        }else {
-            $nip = $request->nip;
-            $nama = $request->nama;
-            $nama_instansi = $request->nama_instansi;
-            $role = $request->role;
-            $email = $request->email;
-            $password = $request->password;
-            $pass = Hash::make($password);
-            //upload
-            $file = $request->file('nama_logo');
-            $nama_file= $file->getClientOriginalName();
-            $extension = $request->file('nama_logo')->extension();
-            $imgname_logo = $nama_file .' '. Carbon::now()->format('d-m-yy H-i-s').'.'.$extension;
-            $tujuan_upload = Storage::putFileAs('public/fotoku', $file, $imgname_logo);
-            // try {
+    //     if($validator->fails()) {
+    //         return redirect('/register_admin')->withInput()->withErrors($validator);
+    //     }else {
+    //         $nip = $request->nip;
+    //         $name = $request->name;
+    //         $nama_instansi = $request->nama_instansi;
+    //         $role = $request->role;
+    //         $email = $request->email;
+    //         $password = $request->password;
+    //         $pass = Hash::make($password);
+    //         //upload
+    //         $file = $request->file('nama_logo');
+    //         $nama_file= $file->getClientOriginalName();
+    //         $extension = $request->file('nama_logo')->extension();
+    //         $imgname_logo = $nama_file .' '. Carbon::now()->format('d-m-yy H-i-s').'.'.$extension;
+    //         $tujuan_upload = Storage::putFileAs('public/fotoku', $file, $imgname_logo);
+    //         // try {
 
-                $admins = new Admin;
-                $admins->nama_logo = $imgname_logo;
-                $admins->nama_instansi = $nama_instansi;
-                $admins->save();
+    //             $admins = new Admin;
+    //             $admins->nama_logo = $imgname_logo;
+    //             $admins->nama_instansi = $nama_instansi;
+    //             $admins->save();
 
-                $users = new User;
-                $users->nis = $nip;
-                $users->name = $nama;
-                $users->role = $role;
-                $users->email = $email;
-                $users->password = $pass;
-                $users->save();
+    //             $users = new User;
+    //             $users->nis = $nip;
+    //             $users->name = $name;
+    //             $users->role = $role;
+    //             $users->email = $email;
+    //             $users->password = $pass;
+    //             $users->save();
 
-                $emailku = User::all()->first()->email;
-                $passwordku = User::all()->first()->password;
+    //             $emailku = User::all()->first()->email;
+    //             $passwordku = User::all()->first()->password;
 
-            if($emailku == $email && $passwordku == $pass){
-                return redirect('/login');
-            }
+    //             event(new Registered($user = $creator->create($request->all())));
 
-                // return redirect('/register_admin')->with('status', 'Profil Berhasil Diubah');
-            // } catch (Exception $e) {
-                // return redirect('/register_admin')->with('failed', 'Operation Failed');
-            // }
-        }
-    }
+    //             $this->guard->login($user);
+
+    //             return app(RegisterResponse::class);
+
+    //         // if($emailku == $email && $passwordku == $pass){
+    //         //     return redirect('/login');
+    //         // }
+
+    //             // return redirect('/register_admin')->with('status', 'Profil Berhasil Diubah');
+    //         // } catch (Exception $e) {
+    //             // return redirect('/register_admin')->with('failed', 'Operation Failed');
+    //         // }
+    //     }
+    // }
 
     
     /**
